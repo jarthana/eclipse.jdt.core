@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,8 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -30,6 +32,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.ResolvedBinaryMethod;
 
@@ -5461,4 +5464,34 @@ public void testCaptureBinding18() throws CoreException {
 	assertEquals("bound's type argument is the original type argument", binding, bound.getTypeArguments()[0]);
 }
 
+public void testBug579674() throws CoreException, IOException {
+	String content = "package com;\n"
+			+ "import com.logging.something.Bar;\n"
+			+ "public class Foo {\n"
+			+ "    Bar bababa;\n"
+			+ "}";
+	IPath rootPath = new Path("/Converter18/src/");
+	IPath pathDef = rootPath.append("com");
+	createFolder(pathDef);
+	createFile("/Converter18/src/com/Bar.java", "package com.logging.something;\n"
+			+ "public class Bar {}\n");
+	createFile("/Converter18/src/com/Baz.java", "package com;\n"
+			+ "public class Baz {}");
+	createFile("/Converter18/src/com/Foo.java", content);
+	this.workingCopy = getWorkingCopy("/Converter18/src/com/Foo.java", true/* resolve */);
+    ASTParser parser = ASTParser.newParser(ASTParser.K_COMPILATION_UNIT);
+    parser.setSource(content.toCharArray());
+    parser.setResolveBindings(true);
+    parser.setBindingsRecovery(true);
+    parser.setStatementsRecovery(true);
+    String[] refSourcePaths = {getWorkspacePath() + rootPath.toOSString()};
+    parser.setEnvironment(null, refSourcePaths, null, true);
+    parser.setUnitName("Reproducer");
+
+    ASTNode ast_ = parser.createAST(null);
+    CompilationUnit cu = (CompilationUnit) ast_;
+    for (IProblem problem : cu.getProblems()) {
+        System.out.println(problem.getMessage());
+    }
+}
 }
