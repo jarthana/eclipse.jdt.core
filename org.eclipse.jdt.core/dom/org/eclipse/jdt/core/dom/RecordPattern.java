@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *      Pattern<Pattern<Patterns....>> Type SimpleName
  * </pre>
  *
- * @since 3.31
+ * @since 3.32
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients.
  */
