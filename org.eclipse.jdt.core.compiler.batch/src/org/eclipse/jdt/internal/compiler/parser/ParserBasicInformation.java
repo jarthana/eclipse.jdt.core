@@ -22,20 +22,32 @@ public interface ParserBasicInformation {
 
 					ERROR_SYMBOL = 138,
 					MAX_NAME_LENGTH = 53,
+<<<<<<< HEAD
 					NUM_STATES = 1239,
+=======
+					NUM_STATES = 1231,
+>>>>>>> upstream/BETA_JAVA21
 
 					NT_OFFSET = 138,
-					SCOPE_UBOUND = 322,
-					SCOPE_SIZE = 323,
-					LA_STATE_OFFSET = 18574,
+					SCOPE_UBOUND = 321,
+					SCOPE_SIZE = 322,
+					LA_STATE_OFFSET = 18334,
 					MAX_LA = 1,
+<<<<<<< HEAD
 					NUM_RULES = 946,
 					NUM_TERMINALS = 138,
 					NUM_NON_TERMINALS = 437,
 					NUM_SYMBOLS = 575,
 					START_STATE = 1033,
+=======
+					NUM_RULES = 940,
+					NUM_TERMINALS = 138,
+					NUM_NON_TERMINALS = 432,
+					NUM_SYMBOLS = 570,
+					START_STATE = 1003,
+>>>>>>> upstream/BETA_JAVA21
 					EOFT_SYMBOL = 64,
 					EOLT_SYMBOL = 64,
-					ACCEPT_ACTION = 18573,
-					ERROR_ACTION = 18574;
+					ACCEPT_ACTION = 18333,
+					ERROR_ACTION = 18334;
 }
