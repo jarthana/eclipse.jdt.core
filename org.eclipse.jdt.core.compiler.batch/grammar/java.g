@@ -57,8 +57,6 @@ $Terminals
 	CharacterLiteral
 	StringLiteral
 	TextBlock
-	StringTemplate
-	TextBlockTemplate
 
 	PLUS_PLUS
 	MINUS_MINUS
@@ -434,10 +432,6 @@ InternalCompilationUnit ::= PackageDeclaration TypeDeclarations
 /.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
 InternalCompilationUnit ::= ImportDeclarations ReduceImports
 /.$putCase consumeInternalCompilationUnit(); $break ./
-InternalCompilationUnit ::= TypeDeclarations
-/.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
-InternalCompilationUnit ::= ImportDeclarations ReduceImports TypeDeclarations
-/.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
 InternalCompilationUnit ::= $empty
 /.$putCase consumeEmptyInternalCompilationUnit(); $break ./
 /:$readableName CompilationUnit:/
@@ -452,6 +446,12 @@ InternalCompilationUnit ::= ModuleDeclaration
 ModuleDeclaration ::= ModuleHeader ModuleBody
 /:$compliance 9:/
 /.$putCase consumeModuleDeclaration(); $break ./
+
+-- JEP 445: implicitly declared class, this may capture type declarations without implicitly declared class, this case is fixed/reduced upon completion of parsing
+InternalCompilationUnit ::= ImplicitlyDeclaredClassBodyDeclarations
+/.$putCase consumeInternalCompilationUnitWithPotentialImplicitlyDeclaredClass(); $break ./
+InternalCompilationUnit ::= ImportDeclarations ReduceImports ImplicitlyDeclaredClassBodyDeclarations
+/.$putCase consumeInternalCompilationUnitWithPotentialImplicitlyDeclaredClass(); $break ./
 
 -- to work around shift/reduce conflicts, we allow Modifiersopt in order to support annotations
 -- in a module declaration, and then report errors if any modifiers other than annotations are
@@ -746,6 +746,11 @@ ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
 ClassBodyDeclaration -> ClassMemberDeclaration
 ClassBodyDeclaration -> StaticInitializer
 ClassBodyDeclaration -> ConstructorDeclaration
+
+ImplicitlyDeclaredClassBodyDeclarations -> ClassMemberDeclaration
+ImplicitlyDeclaredClassBodyDeclarations ::= ClassMemberDeclaration ImplicitlyDeclaredClassBodyDeclarations
+/.$putCase consumeImplicitlyDeclaredClassBodyDeclarations(); $break ./
+/:$readableName ImplicitlyDeclaredClassBodyDeclarations:/
 --1.1 feature
 ClassBodyDeclaration ::= Diet NestedMethod CreateInitializer Block
 /.$putCase consumeClassBodyDeclaration(); $break ./
@@ -1250,9 +1255,9 @@ InstanceofClassic ::= 'instanceof' Modifiersopt Type
 /.$putCase consumeInstanceOfClassic(); $break ./
 /:$readableName InstanceofClassic:/
 
-InstanceofPattern -> 'instanceof' Pattern
+InstanceofPattern ::=  'instanceof' Pattern
+/.$putCase consumeInstanceofPattern(); $break ./
 /:$readableName InstanceofPattern:/
-
 
 Pattern -> TypePattern
 Pattern -> RecordPattern
@@ -1300,33 +1305,6 @@ ComponentPattern -> UnnamedPattern
 
 -----------------------------------------------
 -- 20 preview feature : end of record patterns
------------------------------------------------
------------------------------------------------
--- 21 preview feature : String templates
------------------------------------------------
-
-PrimaryNoNewArray -> StringTemplateExpression
-
-TemplateArgument -> StringLiteral
-TemplateArgument -> TextBlock
-TemplateArgument -> StringTemplate
-TemplateArgument -> TextBlockTemplate
-
-StringTemplateExpression ::= Name '.' TemplateArgument
-/.$putCase consumeTemplateExpressionWithName(); $break ./
-/:$readableName TemplateExpression:/
-/:$compliance 21:/
-
-StringTemplateExpression ::= Primary '.' TemplateArgument
-/.$putCase consumeTemplateExpressionWithPrimary(); $break ./
-/:$readableName TemplateExpression:/
-/:$compliance 21:/
-
---TemplateProcessor ::= Expression
---/:$compliance 21:/
-
------------------------------------------------
--- 21 preview feature : end of String templates
 -----------------------------------------------
 
 UnnamedPattern ::= '_'
